@@ -6,38 +6,27 @@ const deleteBtn = document.getElementById("delete-btn")
 const tabBtn=document.getElementById("tab-btn")
 
 const leadsFromLocalStorage=JSON.parse (localStorage.getItem("myLeads"))
+
 console.log(leadsFromLocalStorage)
+
+
+if (leadsFromLocalStorage) {
+    myLeads = leadsFromLocalStorage
+    render(myLeads)
+}
 
 tabBtn.addEventListener("click", function(){    
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
         myLeads.push(tabs[0].url)
         localStorage.setItem("myLeads", JSON.stringify(myLeads) )
         render(myLeads)
+            console.log( localStorage.getItem("myLeads") )
+
     })
 })
 
-
-inputBtn.addEventListener("click", function() {
-    myLeads.push(inputEl.value)
-    console.log("Button clicked!")
-  console.log(myLeads)
-localStorage.setItem("myLeads", JSON.stringify(myLeads))
-console.log(localStorage.getItem("myLeads"))
-render(myLeads)
-inputEl.value= ""
-})
-
-deleteBtn.addEventListener("dblclick", function deleteData (){
-localStorage.clear()
-while(myLeads.length > 0) {
-    myLeads.pop();
-}
-render(myLeads)
-})  
-
-
 function render (leads){
-  let listItems=""
+  let listItems=" "
 
 for (let i = 0; i < leads.length; i++) {
 listItems+= `<li>
@@ -48,3 +37,23 @@ listItems+= `<li>
 }
 ulEl.innerHTML=listItems
 }
+
+deleteBtn.addEventListener("dblclick", function deleteData (){
+localStorage.clear()
+while(myLeads.length > 0) {
+    myLeads.pop();
+}
+render(myLeads)
+})  
+
+inputBtn.addEventListener("click", function() {
+    myLeads.push(inputEl.value)
+    inputEl.value= ""
+localStorage.setItem("myLeads", JSON.stringify(myLeads))
+console.log("SAVED:", localStorage.getItem("myLeads")) 
+render(myLeads)
+})
+
+
+
+
