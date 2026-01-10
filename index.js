@@ -1,29 +1,31 @@
-let myLeads = []
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+
+  import { getDatabase,
+         ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBCxKp9f3e4IPoBF9QxhEqW_2jaZFw9Obw",
+    authDomain: "leads-tracker-7d9e9.firebaseapp.com",
+    databaseURL: "https://leads-tracker-7d9e9-default-rtdb.firebaseio.com",
+    projectId: "leads-tracker-7d9e9",
+    storageBucket: "leads-tracker-7d9e9.firebasestorage.app",
+    messagingSenderId: "74193097992",
+    appId: "1:74193097992:web:f31f5e7e38734e495208bd"
+  }
+
+const app = initializeApp(firebaseConfig)
+const database = getDatabase(app)
+const referenceInDB = ref(database, "leads")
+
 const inputEl = document.getElementById("input-el")
 const inputBtn = document.getElementById("input-btn")
 const ulEl=document.getElementById("un-list")
 const deleteBtn = document.getElementById("delete-btn")
-const tabBtn=document.getElementById("tab-btn")
-
-const leadsFromLocalStorage=JSON.parse (localStorage.getItem("myLeads"))
-
-console.log(leadsFromLocalStorage)
 
 
-if (leadsFromLocalStorage) {
-    myLeads = leadsFromLocalStorage
-    render(myLeads)
-}
 
-tabBtn.addEventListener("click", function(){    
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-        myLeads.push(tabs[0].url)
-        localStorage.setItem("myLeads", JSON.stringify(myLeads) )
-        render(myLeads)
-            console.log( localStorage.getItem("myLeads") )
 
-    })
-})
 
 function render (leads){
   let listItems=" "
@@ -38,20 +40,25 @@ listItems+= `<li>
 ulEl.innerHTML=listItems
 }
 
+onValue(referenceInDB, function(snapshot) {
+    const snapshotHasvalue=snapshot.exists()
+    if(snapshotHasvalue){
+    let snapshotValues=snapshot.val()
+    const leads=Object.values(snapshotValues)
+    render(leads)
+    }
+})
+
+
 deleteBtn.addEventListener("dblclick", function deleteData (){
-localStorage.clear()
-while(myLeads.length > 0) {
-    myLeads.pop();
+remove(referenceInDB)
+ulEl.innerHTML= ""
 }
-render(myLeads)
-})  
+)   
 
 inputBtn.addEventListener("click", function() {
-    myLeads.push(inputEl.value)
+push(referenceInDB, inputEl.value)
     inputEl.value= ""
-localStorage.setItem("myLeads", JSON.stringify(myLeads))
-console.log("SAVED:", localStorage.getItem("myLeads")) 
-render(myLeads)
 })
 
 
